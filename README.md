@@ -8,9 +8,9 @@
 
 # DreamCoder
 
-**Claude Code 的开源桌面端图形界面**
+**本地运行的多模型 AI 编程工作台**
 
-*更适合日常创作与协作的 AI 编程工作台*
+*在桌面管理 Claude Code 工作流，也能在局域网内从手机接续会话。*
 
 [![Tauri 2](https://img.shields.io/badge/Tauri-2-blue)](https://v2.tauri.app/)
 [![React 18](https://img.shields.io/badge/React-18-61DAFB)](https://react.dev/)
@@ -21,20 +21,19 @@
 
 </div>
 
-> 🌱 **正在招募贡献者！** 我们整理了一批 [good first issue](https://github.com/GoDiao/dreamcoder/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22) 和 [help wanted](https://github.com/GoDiao/dreamcoder/issues?q=is%3Aopen+is%3Aissue+label%3A%22help+wanted%22)，每条都有 mentor 可以陪你走完第一个 PR。先读 [贡献指南](docs/CONTRIBUTING_zh.md) 再下手会更顺。
+> 🌱 **欢迎贡献！** 可以从 [good first issue](https://github.com/GoDiao/dreamcoder/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22) 和 [help wanted](https://github.com/GoDiao/dreamcoder/issues?q=is%3Aopen+is%3Aissue+label%3A%22help+wanted%22) 开始；动手前请阅读 [贡献指南](docs/CONTRIBUTING_zh.md)。
 
 ---
 
 ## ✨ 为什么选择 DreamCoder？
 
-Claude Code 的能力很强，但命令行并不适合所有人。
-**DreamCoder 把 Claude Code 的核心能力带进原生桌面应用，让会话管理、模型切换、文件操作都更直观。**
+DreamCoder 在本机运行桌面应用与会话服务，把模型配置、编程会话、终端和工具调用放在同一个工作台。
 
-> “我想要 Claude Code 的能力，也想要一个顺手的桌面界面来管理会话、切换模型、处理文件。”
+*   **选择模型服务**：配置 Anthropic 或 OpenAI 兼容接口；提供 DeepSeek、通义千问、Kimi、智谱 GLM、LM Studio、Ollama 等预设，也支持自定义端点。具体模型能否使用取决于服务商与配置。
+*   **看清编程过程**：在桌面查看会话、文件变更、终端和工具调用。
+*   **从手机接续**：启用 H5 接入后，可在同一局域网内通过手机浏览器访问桌面会话；跨网络访问需要自行配置反向代理。
 
-*   **基于 Claude Code 核心体验演进**：DreamCoder 复用了 Claude Code 的核心逻辑，或使用兼容运行时，在保留能力边界的同时补上桌面交互体验。
-*   **隐私优先**：API Key 与数据默认保存在本地，不依赖托管云端服务。
-*   **多模型自由切换**：无缝接入 Anthropic、OpenAI、DeepSeek、阿里通义、MiniMax、Azure、Google Vertex 等。
+Provider 配置和 API Key 保存在本机文件中。使用云端模型时，请求数据会发送给你选择的服务商；详见 [隐私说明](PRIVACY.md)。
 
 ---
 
@@ -47,26 +46,28 @@ Claude Code 的能力很强，但命令行并不适合所有人。
 
 ![主界面](./assets/main.png)
 
-### 2. 深度适配 Claude Code
-*   **Computer Use 双模式**：同时支持视觉截图模式，以及全新的 **UIA Tree 模式**（文本辅助访问，更快、成本更低）。
+### 2. 多模型配置
+*   **Provider 预设与自定义端点**：按所选服务商配置 API Key、地址与模型映射。
+*   **连接检查**：在设置界面测试已配置端点的可用性与延迟。
+
+![Provider 设置](./assets/setting_provider.png)
+
+### 3. Claude Code 工作流
+*   **Computer Use 双模式**：支持视觉截图模式和 **UIA Tree 模式**（文本辅助访问）。
 *   **工具调用全程可见**：AI 读写文件、执行终端命令的过程透明呈现，便于理解与审查。
 *   **MCP 扩展能力**：通过 Model Context Protocol 持续扩展 AI 的上下文与工具能力。
 
 ![Computer Use 设置](./assets/setting_computeruse.png)
 
-### 3. 灵活的 Provider 体系
-*   **切换足够轻**：点击即可在不同模型供应商之间切换。
-*   **支持范围够广**：Anthropic (Claude)、OpenAI、DeepSeek、Moonshot (Kimi)、MiniMax、Azure OpenAI、Google Vertex、AWS Bedrock。
-*   **连接状态一眼可见**：可在设置界面直接测试可用性与延迟。
-
-![Provider 设置](./assets/setting_provider.png)
+### 4. 局域网内手机接续
+*   **H5 接入**：在设置中开启访问、管理 Token，并使用二维码从同一局域网内的手机连接。
+*   **访问范围**：桌面端需保持运行；跨网络访问需要自行配置反向代理，相关部署指南仍在编写。
 
 ---
 
-### 4. MCP 扩展
-*   **原生支持 MCP**：完整接入 Model Context Protocol。
+### 5. MCP 扩展
+*   **支持 MCP**：通过 Model Context Protocol 接入外部工具。
 *   **配置过程图形化**：不再手写 JSON，通过界面管理 MCP 服务器。
-*   **开箱即可扩展**：内置常用 MCP 工具集成，方便快速接入。
 
 ![MCP 技能设置](./assets/setting_skills.png)
 
@@ -89,7 +90,7 @@ Claude Code 的能力很强，但命令行并不适合所有人。
 
 | 平台          | 状态                                          | 预编译安装包                                          |
 |---------------|-----------------------------------------------|-------------------------------------------------------|
-| Windows x64   | ✅ 维护者长期实测                              | ✅ NSIS `.exe` + MSI `.msi`（每个 release 都提供）     |
+| Windows x64   | ✅ 维护者长期实测                              | v0.4.5 未附安装包；请查看 Releases 或按下文从源码运行     |
 | macOS arm64   | ⚠️ 暂未日常验证（已保留构建脚本）               | ❌ 欢迎社区共同补齐                                    |
 | Linux x64     | ⚠️ 暂未日常验证                                | ❌ 欢迎社区共同补齐                                    |
 
@@ -98,6 +99,7 @@ Claude Code 的能力很强，但命令行并不适合所有人。
 > 非 Windows 构建目前仍属于“代码已覆盖、体验待更多实机验证”的状态。
 > 如果你正在使用 macOS 或 Linux，欢迎通过 issue 或 PR 一起把这部分体验补完整；
 > Linux 内存问题可关注 [#25](https://github.com/GoDiao/dreamcoder/issues/25)。
+> 安装包供应情况以 [GitHub Releases](https://github.com/GoDiao/dreamcoder/releases) 页面中的实际附件为准。
 
 ---
 
@@ -106,7 +108,7 @@ Claude Code 的能力很强，但命令行并不适合所有人。
 - [x] **Phase 1**: 桌面端 GUI + 多模型支持 + 项目工作台
 - [x] **Phase 2**: CLI 后端集成 + Computer Use + MCP + Skills + Agent Teams
 - [x] **Phase 2.5**: 性能优化 — bundle 拆分、轮询节流、终端 LRU、sessionStore 重构
-- [x] **Phase 3**: H5 远程访问 (手机/浏览器接入桌面端会话)
+- [x] **Phase 3**: H5 局域网访问 (启用后从手机/浏览器接入桌面端会话)
 - [ ] **Phase 4**: IM 适配器集成 (飞书/钉钉/Telegram/微信)
 - [ ] **Phase 5**: Release 自动化 + 自动更新
 
@@ -123,7 +125,7 @@ Claude Code 的能力很强，但命令行并不适合所有人。
 
 ### 安装与运行
 
-> 这是一个 Bun monorepo（根目录与 `desktop/` 各自维护依赖）。**下面四步建议完整执行**，否则 `tauri dev` 往往会因为 sidecar 二进制或 Tauri CLI 缺失而无法启动。
+> v0.4.5 Release 没有预编译安装包。下面是从源码运行开发版的方法。这是一个 Bun monorepo（根目录与 `desktop/` 各自维护依赖）；**四步建议完整执行**，否则 `tauri dev` 往往会因为 sidecar 二进制或 Tauri CLI 缺失而无法启动。
 
 ```bash
 # 0. 克隆仓库

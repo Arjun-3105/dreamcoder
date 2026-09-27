@@ -23,10 +23,10 @@ bun run build:sidecars
 bun run tauri dev
 
 # 6. 在 issue 列表挑一个带 `good first issue` 或 `help wanted` 标签的任务，
-#    从 dev 分支拉一个功能分支
-git checkout dev && git checkout -b feat/your-feature
+#    从 main 分支拉一个功能分支
+git checkout main && git checkout -b feat/your-feature
 
-# 7. 写代码 → bun run lint → bun run test → push → 提 PR 到 dev 分支
+# 7. 写代码 → bun run lint → bun run test → push → 提 PR 到 main 分支
 ```
 
 👉 **第一次贡献？** 直接看 [good first issues](https://github.com/GoDiao/dreamcoder/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22)，每条都有 mentor，可以在 issue 或 PR 里直接 at 他们。
@@ -60,9 +60,9 @@ git checkout dev && git checkout -b feat/your-feature
 
 ### 提交代码
 
-1. **Fork 仓库**，从 `dev` 分支创建你的功能分支：
+1. **Fork 仓库**，从 `main` 分支创建你的功能分支：
    ```bash
-   git checkout dev
+   git checkout main
    git checkout -b feat/your-feature-name
    ```
 
@@ -88,7 +88,7 @@ git checkout dev && git checkout -b feat/your-feature
    bun run test    # 运行测试
    ```
 
-5. **提交 PR**。PR 目标分支为 `dev`，描述清楚改了什么、为什么改。
+5. **提交 PR**。PR 目标分支为 `main`，描述清楚改了什么、为什么改。
 
 ## 项目结构
 

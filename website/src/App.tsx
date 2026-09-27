@@ -1,691 +1,211 @@
-import { useState, useEffect, useRef } from 'react';
-import { 
-  Bot, Shield, Cpu, Layers, Wrench, Monitor, Search, Plus, Trash2, 
-  RefreshCw, Settings, Folder, Check, AlertTriangle, ChevronRight, 
-  Sliders, Github, ExternalLink, Play, Terminal, ChevronDown, Copy, 
-  HelpCircle, Sparkles, Code2, Globe, Minimize2, ZoomIn, ArrowRight,
-  BookOpen, Star, Info, Sparkle, Download, Layers2, ShieldCheck, Zap
-} from 'lucide-react';
-import { PageRoute } from './types';
-import { useLanguage } from './context/LanguageContext';
-import AppShowcase from './components/AppShowcase';
-import DocsSection from './components/DocsSection';
-import DesignSpec from './components/DesignSpec';
+import { useEffect, useState } from 'react';
+import { ArrowRight, ExternalLink, Github, Laptop, LockKeyhole, Monitor, Smartphone, Terminal } from 'lucide-react';
+
+type Language = 'zh' | 'en';
+
+const copy = {
+  zh: {
+    navFeatures: '功能',
+    navAccess: '手机接续',
+    navPlatforms: '平台与安装',
+    eyebrow: '开源 · 本地运行 · 多模型',
+    title: '把 AI 编程会话，放进一个看得清的工作台。',
+    intro: 'DreamCoder 在桌面管理 Claude Code 工作流。配置你选择的模型服务，查看会话、终端与工具调用；开启 H5 后，还能在同一局域网内从手机浏览器接续会话。',
+    source: '查看源码与构建指南',
+    releases: '查看发布状态',
+    releaseNote: 'v0.4.5 Release 未附安装包；请按 README 从源码运行，并在 Releases 页面查看后续发布状态。',
+    screenshotLabel: '真实桌面界面',
+    featureEyebrow: '三个日常入口',
+    featureTitle: '模型、会话、工具，都在桌面上。',
+    features: [
+      { number: '01', title: '选择模型服务', description: '配置 Anthropic 或 OpenAI 兼容接口。提供 DeepSeek、通义千问、Kimi、智谱 GLM、LM Studio、Ollama 等预设，也支持自定义端点。实际可用模型取决于服务商和配置。', image: '/assets/setting_provider.png', alt: 'DreamCoder Provider 设置界面' },
+      { number: '02', title: '跟进编程过程', description: '在一个界面查看会话、终端、文件变更和工具调用。Computer Use 与 MCP 配置也有可视化入口。', image: '/assets/setting_computeruse.png', alt: 'DreamCoder Computer Use 设置界面' },
+      { number: '03', title: '管理 MCP 扩展', description: '在设置界面管理 MCP 服务器，按项目需要接入工具。', image: '/assets/setting_skills.png', alt: 'DreamCoder MCP 设置界面' },
+    ],
+    accessEyebrow: '离开桌面时',
+    accessTitle: '同一局域网内，用手机接续会话。',
+    accessBody: '在桌面设置中启用 H5 接入、管理访问 Token，并用二维码连接手机浏览器。桌面应用需要保持运行。跨网络访问需要自行配置反向代理；部署指南仍在编写。',
+    accessLink: '查看 H5 路线图',
+    platformsEyebrow: '当前状态',
+    platformsTitle: '从源码开始，了解平台支持。',
+    windows: 'Windows x64',
+    windowsBody: '维护者日常验证。v0.4.5 Release 没有预编译安装包。',
+    mac: 'macOS arm64',
+    macBody: '保留构建支持，尚未纳入维护者的日常实机验证。',
+    linux: 'Linux x64',
+    linuxBody: '尚未纳入日常实机验证，现有内存问题仍在调查。',
+    privacyTitle: '本地运行与数据边界',
+    privacyBody: 'Provider 配置和 API Key 写入本机文件。使用云端模型时，请求内容会发送给你选择的服务商。启用 H5 后，请妥善保管访问 Token。',
+    privacyLink: '阅读隐私说明',
+    contribute: '参与贡献',
+    footer: 'DreamCoder · MIT License',
+  },
+  en: {
+    navFeatures: 'Features',
+    navAccess: 'Phone access',
+    navPlatforms: 'Platforms & setup',
+    eyebrow: 'Open source · Locally run · Multi-provider',
+    title: 'A clear workspace for your AI coding sessions.',
+    intro: 'DreamCoder manages Claude Code workflows on your desktop. Configure your chosen model provider, follow sessions, terminal and tool activity, then continue from a phone browser on the same LAN after enabling H5 Access.',
+    source: 'Source and build guide',
+    releases: 'Release status',
+    releaseNote: 'Release v0.4.5 has no installer attached. Follow the README to run from source and check Releases for newer assets.',
+    screenshotLabel: 'Actual desktop interface',
+    featureEyebrow: 'Three everyday entry points',
+    featureTitle: 'Models, sessions, and tools on your desktop.',
+    features: [
+      { number: '01', title: 'Choose a model provider', description: 'Configure Anthropic or OpenAI-compatible endpoints. Presets include DeepSeek, Qwen, Kimi, Zhipu GLM, LM Studio, and Ollama, plus custom endpoints. Model availability depends on your provider and configuration.', image: '/assets/setting_provider.png', alt: 'DreamCoder Provider settings' },
+      { number: '02', title: 'Follow the coding process', description: 'Review sessions, terminal activity, file changes, and tool calls in one place. Computer Use and MCP also have visual settings.', image: '/assets/setting_computeruse.png', alt: 'DreamCoder Computer Use settings' },
+      { number: '03', title: 'Manage MCP extensions', description: 'Manage MCP servers in Settings and connect the tools your project needs.', image: '/assets/setting_skills.png', alt: 'DreamCoder MCP settings' },
+    ],
+    accessEyebrow: 'Away from your desk',
+    accessTitle: 'Continue on your phone over the same LAN.',
+    accessBody: 'Enable H5 Access in desktop Settings, manage the access token, and connect a phone browser with the QR code. Keep the desktop app running. Cross-network access requires your own reverse proxy; the deployment guide is still in progress.',
+    accessLink: 'H5 roadmap',
+    platformsEyebrow: 'Current status',
+    platformsTitle: 'Run from source and check platform support.',
+    windows: 'Windows x64',
+    windowsBody: 'Regularly tested by the maintainer. Release v0.4.5 has no pre-built installer.',
+    mac: 'macOS arm64',
+    macBody: 'Build support exists, but it is not part of the maintainer’s daily device validation.',
+    linux: 'Linux x64',
+    linuxBody: 'Not part of daily device validation; a memory issue remains under investigation.',
+    privacyTitle: 'Local runtime and data flow',
+    privacyBody: 'Provider settings and API keys are written to local files. Requests to cloud models go to your chosen provider. Protect the access token when you enable H5.',
+    privacyLink: 'Read the privacy notice',
+    contribute: 'Contribute',
+    footer: 'DreamCoder · MIT License',
+  },
+} as const;
+
+const github = 'https://github.com/GoDiao/dreamcoder';
 
 export default function App() {
-  const { 
-    lang, 
-    setLang, 
-    t, 
-    CORE_FEATURES, 
-    COMPARISON_TABLE, 
-    SETTINGS_SHOWCASES, 
-    ARCHITECTURE_LAYERS, 
-    BENCHMARKS 
-  } = useLanguage();
+  const [lang, setLang] = useState<Language>(() => window.localStorage.getItem('dreamcoder-site-language') === 'en' ? 'en' : 'zh');
+  const t = copy[lang];
 
-  const [currentPage, setCurrentPage] = useState<PageRoute>('landing');
-  const [selectedBenchmarkCat, setSelectedBenchmarkCat] = useState<'all' | 'performance' | 'resource' | 'ux'>('all');
-
-  // Scroll to top when page changes
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'instant' });
-  }, [currentPage]);
-  
-  // Interactive Download Simulation state
-  const [downloadProgress, setDownloadProgress] = useState<number | null>(null);
-  const [downloadOS, setDownloadOS] = useState<string>('');
-  
-  // Active showcase channel binder state (which tab of simulator is active)
-  const [simulatorActiveTab, setSimulatorActiveTab] = useState<string>('main');
+    document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+    document.title = `DreamCoder · ${lang === 'zh' ? '本地运行的多模型 AI 编程工作台' : 'A locally run, multi-provider AI coding workspace'}`;
+  }, [lang]);
 
-  // Trigger simulated download triggers
-  const triggerDownloadAction = (os: string) => {
-    if (downloadProgress !== null) return;
-    setDownloadOS(os);
-    setDownloadProgress(0);
-    
-    const interval = setInterval(() => {
-      setDownloadProgress(prev => {
-        if (prev === null) {
-          clearInterval(interval);
-          return null;
-        }
-        if (prev >= 100) {
-          clearInterval(interval);
-          setTimeout(() => {
-            setDownloadProgress(null);
-            alert(lang === 'zh' 
-              ? `DreamCoder Native Desktop Bundle (*.${os === 'Windows' ? 'msi' : 'dmg'}) 下载预备完成！大小仅 8.4MB，开箱即用。` 
-              : `DreamCoder Native Desktop Bundle (*.${os === 'Windows' ? 'msi' : 'dmg'}) download prepared successfully! Size 8.4MB, pre-configured out-of-the-box.`
-            );
-          }, 600);
-          return 100;
-        }
-        return prev + 10;
-      });
-    }, 150);
-  };
-
-  // Safe handler to jump directly to deep settings inside the live simulator
-  const jumpToSimulatorTab = (tabName: string) => {
-    setSimulatorActiveTab(tabName);
-    const element = document.getElementById('interactive-workbench-container');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-  };
-
-  // Filter benchmarks on client state
-  const filteredBenchmarks = BENCHMARKS.filter(b => {
-    if (selectedBenchmarkCat === 'all') return true;
-    return b.category === selectedBenchmarkCat;
-  });
+  function changeLanguage(next: Language) {
+    setLang(next);
+    window.localStorage.setItem('dreamcoder-site-language', next);
+  }
 
   return (
-    <div className="min-h-screen flex flex-col bg-brand-bg-primary text-brand-text-body">
-      
-      {/* Editorial Header navigation bar */}
-      <header className="sticky top-0 z-30 bg-brand-bg-primary/95 backdrop-blur-md border-b border-brand-border select-none">
-        <div className="max-w-7xl mx-auto px-4 md:px-8 py-3 flex items-center justify-between">
-          
-          {/* Logo & Product Brand Label */}
-          <div 
-            onClick={() => setCurrentPage('landing')} 
-            className="flex items-center gap-2.5 cursor-pointer text-brand-text-title hover:text-brand-caramel transition-colors"
-          >
-            <span className="bg-brand-caramel text-brand-bg-primary h-6 w-6 rounded flex items-center justify-center font-bold text-sm tracking-tighter">D</span>
-            <div className="font-serif font-black tracking-tight text-lg flex items-baseline gap-1.5">
-              <span>DreamCoder</span>
-              <span className="text-[10px] font-sans font-semibold border border-brand-border px-1.5 py-0.2 bg-brand-bg-secondary text-brand-text-muted rounded">
-                {t('brand.badge')}
-              </span>
-            </div>
+    <div className="min-h-screen bg-brand-bg-primary text-brand-text-body">
+      <header className="sticky top-0 z-30 border-b border-brand-border bg-brand-bg-primary/95 backdrop-blur-md">
+        <nav className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4 md:px-8" aria-label="Main navigation">
+          <a href="#top" className="flex items-center gap-3 font-serif text-xl font-semibold text-brand-text-title">
+            <span className="flex size-8 items-center justify-center rounded-sm bg-brand-text-title font-mono text-sm font-bold text-brand-bg-primary">D</span>
+            DreamCoder
+          </a>
+          <div className="hidden items-center gap-7 text-xs font-medium md:flex">
+            <a className="hover:text-brand-caramel" href="#features">{t.navFeatures}</a>
+            <a className="hover:text-brand-caramel" href="#access">{t.navAccess}</a>
+            <a className="hover:text-brand-caramel" href="#platforms">{t.navPlatforms}</a>
           </div>
-
-          {/* Master view Switchers */}
-          <nav className="flex items-center gap-1.5 md:gap-3 text-xs font-mono font-medium">
-            <button 
-              id="nav-link-landing"
-              onClick={() => {
-                setCurrentPage('landing');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-              className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${currentPage === 'landing' ? 'bg-brand-bg-card text-brand-caramel font-bold border border-brand-border/60' : 'text-brand-text-muted hover:text-brand-text-title'}`}
-            >
-              {t('nav.home')}
-            </button>
-            <button 
-              id="nav-link-docs"
-              onClick={() => {
-                setCurrentPage('docs');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-              className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${currentPage === 'docs' ? 'bg-brand-bg-card text-brand-caramel font-bold border border-brand-border/60' : 'text-brand-text-muted hover:text-brand-text-title'}`}
-            >
-              {t('nav.docs')}
-            </button>
-            <button 
-              id="nav-link-spec"
-              onClick={() => {
-                setCurrentPage('spec');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-              className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${currentPage === 'spec' ? 'bg-brand-bg-card text-brand-caramel font-bold border border-brand-border/60' : 'text-brand-text-muted hover:text-brand-text-title'}`}
-            >
-              {t('nav.spec')}
-            </button>
-          </nav>
-
-          {/* Language Switcher and Github Badge */}
-          <div className="flex items-center gap-2.5">
-            {/* Elegant physical lang switcher */}
-            <div className="flex items-center gap-0.5 border border-brand-border bg-brand-bg-secondary p-0.5 rounded-lg text-[10px] font-mono select-none">
-              <button
-                onClick={() => setLang('zh')}
-                className={`px-2 py-0.5 rounded transition-all cursor-pointer ${lang === 'zh' ? 'bg-brand-caramel text-brand-bg-primary font-bold shadow-2xs' : 'text-brand-text-muted hover:text-brand-text-title'}`}
-              >
-                中文
-              </button>
-              <button
-                onClick={() => setLang('en')}
-                className={`px-2 py-0.5 rounded transition-all cursor-pointer ${lang === 'en' ? 'bg-brand-caramel text-brand-bg-primary font-bold shadow-2xs' : 'text-brand-text-muted hover:text-brand-text-title'}`}
-              >
-                EN
-              </button>
+          <div className="flex items-center gap-2">
+            <div className="flex rounded-md border border-brand-border p-0.5 font-mono text-[11px]" aria-label="Language">
+              <button type="button" onClick={() => changeLanguage('zh')} aria-pressed={lang === 'zh'} className={`rounded px-2 py-1 ${lang === 'zh' ? 'bg-brand-text-title text-white' : 'hover:bg-brand-bg-secondary'}`}>中文</button>
+              <button type="button" onClick={() => changeLanguage('en')} aria-pressed={lang === 'en'} className={`rounded px-2 py-1 ${lang === 'en' ? 'bg-brand-text-title text-white' : 'hover:bg-brand-bg-secondary'}`}>EN</button>
             </div>
-
-            {/* GitHub Widget */}
-            <div className="hidden sm:flex items-center">
-              <a 
-                href="https://github.com/GoDiao/dreamcoder" 
-                target="_blank" 
-                rel="noreferrer" 
-                className="flex items-center gap-1.5 text-xs font-mono font-medium px-3 py-1 bg-brand-bg-secondary text-brand-text-title hover:text-brand-caramel border border-brand-border rounded-lg transition-all shadow-2xs hover:shadow-xs hover:translate-y-[-1px]"
-              >
-                <Github size={12} />
-                <span>{t('nav.github')}</span>
-              </a>
-            </div>
+            <a href={github} target="_blank" rel="noreferrer" className="rounded-md border border-brand-border p-2 text-brand-text-title hover:bg-brand-bg-secondary" aria-label="GitHub"><Github size={16} /></a>
           </div>
-        </div>
+        </nav>
       </header>
 
-      {/* Main viewport Container */}
-      <main className="flex-1">
-        
-        {/* ==================== PAGE 1: LANDING PAGE ==================== */}
-        {currentPage === 'landing' && (
-          <div className="space-y-20 pb-20 animate-fade-in" id="landing-page-parent">
-            
-            {/* SECTION 1: HERO AREA */}
-            <section className="max-w-7xl mx-auto px-4 md:px-8 pt-10 md:pt-16 space-y-10" id="editorial-hero">
-              <div className="text-center max-w-3xl mx-auto space-y-4">
-                
-                {/* Visual Label tag */}
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#efe8de] rounded-full border border-brand-border text-[11px] font-mono font-semibold text-brand-caramel tracking-wider uppercase select-none">
-                  <Sparkle size={11} className="animate-spin-slow text-brand-caramel" />
-                  <span>{t('brand.subtitle')}</span>
-                </div>
-
-                <h1 className="text-4xl md:text-6xl serif-display tracking-tight text-brand-text-title font-bold leading-[1.1] selection:bg-brand-caramel/10">
-                  DreamCoder 
-                  <span className="block text-xl md:text-2xl font-mono text-brand-caramel mt-3 font-semibold">
-                    {t('hero.title')}
-                  </span>
-                </h1>
-
-                {/* Editorial text width bounded strictly to 65ch */}
-                <p className="text-sm md:text-base leading-relaxed text-brand-text-body max-w-[65ch] mx-auto selection:bg-brand-caramel/10">
-                  {t('hero.desc')}
-                </p>
-
-                {/* Interactive CTA buttons */}
-                <div className="flex flex-wrap items-center justify-center gap-3 pt-4">
-                  <a
-                    href="https://github.com/GoDiao/dreamcoder/releases"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="px-5 py-2.5 bg-brand-caramel hover:bg-brand-caramel/90 text-brand-bg-primary font-mono text-xs font-bold rounded-xl transition duration-200 cursor-pointer shadow-xs hover:shadow-md hover:translate-y-[-1px] flex items-center gap-2"
-                  >
-                    <Download size={14} />
-                    {t('hero.btn.win')}
-                  </a>
-                  <a
-                    href="https://github.com/GoDiao/dreamcoder/releases"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="px-5 py-2.5 bg-brand-bg-card hover:bg-brand-border text-brand-text-title border border-brand-border font-mono text-xs font-bold rounded-xl transition duration-200 cursor-pointer shadow-xs hover:shadow-md hover:translate-y-[-1px] flex items-center gap-2"
-                  >
-                    <Download size={14} />
-                    {t('hero.btn.mac')}
-                  </a>
-                  <button
-                    onClick={() => {
-                      setCurrentPage('docs');
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }}
-                    className="px-4 py-2.5 hover:underline text-brand-caramel font-mono text-xs font-bold flex items-center gap-1 cursor-pointer"
-                  >
-                    <span>{t('hero.btn.docs')}</span>
-                    <ArrowRight size={13} />
-                  </button>
-                </div>
-
-                {/* Simulated Download Status Card */}
-                {downloadProgress !== null && (
-                  <div className="max-w-md mx-auto p-4 bg-brand-bg-card border border-brand-caramel/40 rounded-xl space-y-2 mt-4 animate-slide-in-right text-xs font-mono">
-                    <div className="flex items-center justify-between text-brand-text-title font-bold">
-                      <span className="flex items-center gap-1.5">
-                        <RefreshCw size={12} className="animate-spin text-brand-caramel" />
-                        {t('hero.dl.sim').replace('{os}', downloadOS)}
-                      </span>
-                      <span>{downloadProgress}%</span>
-                    </div>
-                    <div className="w-full bg-brand-bg-primary h-2 rounded overflow-hidden border border-brand-border">
-                      <div className="bg-brand-caramel h-full transition-all duration-150" style={{ width: `${downloadProgress}%` }}></div>
-                    </div>
-                    <div className="text-[10px] text-brand-text-muted text-left leading-relaxed">
-                      {t('hero.dl.tip').replace('{os}', downloadOS)}
-                    </div>
-                  </div>
-                )}
-
-                {/* Three Data highlights metrics */}
-                <div className="grid grid-cols-3 gap-4 pt-8 max-w-sm sm:max-w-xl mx-auto text-center font-mono">
-                  <div className="p-3 bg-brand-bg-secondary/40 border border-brand-border rounded-lg select-none">
-                    <span className="block text-xl sm:text-2xl font-bold text-brand-caramel tracking-tight">&lt;1ms</span>
-                    <span className="text-[9px] sm:text-[10px] text-brand-text-muted mt-1 uppercase block">{t('hero.metrics.ipc')}</span>
-                  </div>
-                  <div className="p-3 bg-brand-bg-secondary/40 border border-brand-border rounded-lg select-none">
-                    <span className="block text-xl sm:text-2xl font-bold text-brand-caramel tracking-tight">8+</span>
-                    <span className="text-[9px] sm:text-[10px] text-brand-text-muted mt-1 uppercase block">{t('hero.metrics.models')}</span>
-                  </div>
-                  <div className="p-3 bg-brand-bg-secondary/40 border border-brand-border rounded-lg select-none">
-                    <span className="block text-xl sm:text-2xl font-bold text-brand-caramel tracking-tight">0 字节</span>
-                    <span className="text-[9px] sm:text-[10px] text-brand-text-muted mt-1 uppercase block">{t('hero.metrics.security')}</span>
-                  </div>
-                </div>
+      <main id="top">
+        <section className="relative overflow-hidden border-b border-brand-border">
+          <div className="pointer-events-none absolute -right-28 -top-40 size-[36rem] rounded-full border border-brand-border/70" aria-hidden="true" />
+          <div className="pointer-events-none absolute -right-10 -top-24 size-[28rem] rounded-full border border-brand-border/70" aria-hidden="true" />
+          <div className="relative mx-auto grid max-w-7xl gap-12 px-5 pb-20 pt-20 md:px-8 lg:grid-cols-[0.85fr_1.15fr] lg:items-center lg:gap-16 lg:py-28">
+            <div>
+              <p className="mb-5 font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-caramel">{t.eyebrow}</p>
+              <h1 className="max-w-xl font-serif text-5xl font-semibold leading-[1.08] tracking-tight text-brand-text-title md:text-6xl">{t.title}</h1>
+              <p className="mt-7 max-w-xl text-base leading-8 text-brand-text-body">{t.intro}</p>
+              <div className="mt-9 flex flex-wrap gap-3">
+                <a href={`${github}/blob/main/${lang === 'zh' ? 'README.md' : 'README_en.md'}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-md bg-brand-text-title px-5 py-3 text-sm font-semibold text-white transition hover:bg-brand-caramel">{t.source}<ArrowRight size={16} /></a>
+                <a href={`${github}/releases`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-md border border-brand-border px-5 py-3 text-sm font-semibold text-brand-text-title transition hover:bg-brand-bg-secondary">{t.releases}<ExternalLink size={15} /></a>
               </div>
-
-              {/* Dynamic Workbench Live showcase simulator container */}
-              <div className="space-y-3 pt-6" id="interactive-workbench-container">
-                <div className="text-center font-mono text-xs text-brand-text-muted select-none flex items-center justify-center gap-1.5">
-                  <Monitor size={12} className="text-brand-caramel" />
-                  <span>{t('hero.sim.title')}</span>
-                </div>
-                {/* Showcase mounting responsive canvas replicas */}
-                <AppShowcase initialTab={simulatorActiveTab} />
-              </div>
-            </section>
-
-            {/* SECTION 2: WHY CHOOSE DREAMCODER (COMPARATIVE TABLE ANALYSIS) */}
-            <section className="bg-[#efe8de]/50 border-y border-brand-border py-16">
-              <div className="max-w-7xl mx-auto px-4 md:px-8 space-y-8">
-                <div className="text-center max-w-xl mx-auto">
-                  <span className="text-xs font-mono font-semibold text-brand-caramel tracking-wider uppercase">{t('cmp.badge')}</span>
-                  <h2 className="text-3xl serif-display font-medium text-brand-text-title tracking-tight mt-1">{t('cmp.title')}</h2>
-                  <p className="text-xs font-mono text-brand-text-muted mt-1">{t('cmp.subtitle')}</p>
-                </div>
-
-                {/* Comparison Tabular spreadsheet Layout */}
-                <div className="max-w-4xl mx-auto border border-brand-border rounded-xl bg-brand-bg-primary overflow-x-auto shadow-2xs font-mono text-[11px] select-text">
-                  <table className="w-full text-left border-collapse min-w-[600px]">
-                    <thead>
-                      <tr className="bg-brand-bg-card border-b border-brand-border text-brand-text-title">
-                        <th className="p-4 font-bold border-r border-brand-border text-xs">{t('cmp.col.criteria')}</th>
-                        <th className="p-4 font-normal text-brand-text-muted">{t('cmp.col.cli')}</th>
-                        <th className="p-4 font-normal text-brand-text-muted">{t('cmp.col.ext')}</th>
-                        <th className="p-4 font-bold text-brand-caramel">{t('cmp.col.dc')}</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-brand-border text-brand-text-body">
-                      {COMPARISON_TABLE.map((row, index) => (
-                        <tr key={index} className="hover:bg-brand-bg-secondary/20 transition-colors">
-                          <td className="p-4 font-bold border-r border-brand-border text-brand-text-title text-xs">
-                            {row.criteria}
-                          </td>
-                          <td className="p-4 italic text-brand-text-muted">
-                            {row.cli}
-                          </td>
-                          <td className="p-4 text-brand-text-muted">
-                            {row.extension}
-                          </td>
-                          <td className={`p-4 font-semibold ${row.isDreamCoderBetter ? 'text-brand-caramel bg-brand-caramel/5/20' : ''}`}>
-                            <div className="flex items-center gap-1.5">
-                              <Check size={11} className="text-brand-success shrink-0" />
-                              <span>{row.dreamcoder}</span>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </section>
-
-            {/* SECTION 3: CORE SIX FEATURE CARDS */}
-            <section className="max-w-7xl mx-auto px-4 md:px-8 space-y-10" id="editorial-features">
-              <div className="text-center max-w-xl mx-auto">
-                <span className="text-xs font-mono font-semibold text-brand-caramel tracking-wider uppercase">{t('feat.badge')}</span>
-                <h2 className="text-3xl serif-display font-medium text-brand-text-title tracking-tight mt-1">{t('feat.title')}</h2>
-                <p className="text-xs font-mono text-brand-text-muted mt-1">{t('feat.subtitle')}</p>
-              </div>
-
-              {/* 6 Feature modular grids exactly mapped to brief */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
-                {CORE_FEATURES.map((feature, idx) => {
-                  return (
-                    <div 
-                      key={feature.id} 
-                      id={`feature-card-${feature.id}`}
-                      className="p-6 bg-brand-bg-card border border-brand-border rounded-xl transition-all duration-300 hover:shadow-xs hover:translate-y-[-1px] space-y-3.5 flex flex-col justify-between"
-                    >
-                      <div className="space-y-2.5">
-                        {/* High-contrast vector bullet markers */}
-                        <div className="h-9 w-9 bg-brand-bg-primary rounded-lg border border-brand-border flex items-center justify-center text-brand-caramel shrink-0">
-                          {feature.icon === 'Monitor' && <Monitor size={18} />}
-                          {feature.icon === 'Bot' && <Bot size={18} />}
-                          {feature.icon === 'Layers' && <Layers size={18} />}
-                          {feature.icon === 'Shield' && <Shield size={18} />}
-                          {feature.icon === 'Wrench' && <Wrench size={18} />}
-                          {feature.icon === 'Cpu' && <Cpu size={18} />}
-                        </div>
-                        <h4 className="text-base serif-display font-bold text-brand-text-title">
-                          {feature.title}
-                        </h4>
-                        <p className="text-xs leading-relaxed text-brand-text-muted font-sans my-2">
-                          {feature.description}
-                        </p>
-                      </div>
-                      
-                      {/* Interactive Deep Spec routing connectors */}
-                      <button 
-                        onClick={() => {
-                          if (feature.id === 'monitor') jumpToSimulatorTab('main');
-                          else if (feature.id === 'computeruse') jumpToSimulatorTab('computer');
-                          else if (feature.id === 'multiprovider') jumpToSimulatorTab('provider');
-                          else if (feature.id === 'security') jumpToSimulatorTab('provider');
-                          else if (feature.id === 'mcp') jumpToSimulatorTab('skills');
-                          else if (feature.id === 'rustcore') jumpToSimulatorTab('computer');
-                        }}
-                        className="text-[10px] font-mono font-bold text-brand-caramel hover:underline text-left inline-flex items-center gap-0.5 cursor-pointer"
-                      >
-                        <span>{t('feat.btn.sim')}</span>
-                        <ChevronRight size={10} />
-                      </button>
-                    </div>
-                  );
-                })}
-              </div>
-            </section>
-
-            {/* SECTION 4: SETTINGS SCREEN DEEP INTEGRATIONS */}
-            <section className="bg-[#efe8de]/30 border-y border-brand-border py-16">
-              <div className="max-w-7xl mx-auto px-4 md:px-8 space-y-12">
-                <div className="text-center max-w-xl mx-auto">
-                  <span className="text-xs font-mono font-semibold text-brand-caramel tracking-wider uppercase font-bold">{t('setting.badge')}</span>
-                  <h2 className="text-3xl serif-display font-medium text-brand-text-title tracking-tight mt-1">{t('setting.title')}</h2>
-                  <p className="text-xs font-mono text-brand-text-muted mt-1">
-                    {t('setting.subtitle')}
-                  </p>
-                </div>
-
-                {/* Elegant listing columns showing setting screenshots with links */}
-                <div className="max-w-4xl mx-auto space-y-10">
-                  {SETTINGS_SHOWCASES.map((item, index) => {
-                    const isEven = index % 2 === 0;
-                    return (
-                      <div 
-                        key={item.id}
-                        className={`flex flex-col lg:flex-row items-stretch border border-brand-border rounded-xl bg-brand-bg-primary overflow-hidden shadow-2xs hover:shadow-xs transition duration-300 ${isEven ? '' : 'lg:flex-row-reverse'}`}
-                      >
-                        {/* Text explanation width bounded strictly to 65ch */}
-                        <div className="p-6 md:p-8 flex-1 flex flex-col justify-between space-y-4">
-                          <div className="space-y-3">
-                            <div className="flex items-center gap-2">
-                              <span className="text-[10px] font-mono font-bold px-2 py-0.5 bg-brand-caramel/10 text-brand-caramel rounded border border-brand-caramel/20">
-                                {item.badge}
-                              </span>
-                              <div className="flex gap-1">
-                                {item.tags.map(t => (
-                                  <span key={t} className="text-[9px] font-mono text-brand-text-muted">#{t}</span>
-                                ))}
-                              </div>
-                            </div>
-                            <h4 className="text-lg md:text-xl serif-display font-bold text-brand-text-title">
-                              {item.title}
-                            </h4>
-                            <p className="text-xs md:text-sm leading-relaxed text-brand-text-muted">
-                              {item.description}
-                            </p>
-                          </div>
-
-                          <div className="pt-2">
-                            <button 
-                              onClick={() => {
-                                if (item.id === 'setting_provider') jumpToSimulatorTab('provider');
-                                else if (item.id === 'setting_computeruse') jumpToSimulatorTab('computer');
-                                else if (item.id === 'setting_skills') jumpToSimulatorTab('skills');
-                              }}
-                              className="px-4 py-2 bg-brand-bg-secondary hover:bg-brand-bg-card text-brand-text-title border border-brand-border rounded-lg text-xs font-mono font-bold flex items-center gap-1.5 transition duration-200 cursor-pointer shadow-2xs hover:shadow-xs active:scale-98"
-                            >
-                              <span>{t('setting.btn.sim')}</span>
-                              <ArrowRight size={12} className="text-brand-caramel" />
-                            </button>
-                          </div>
-                        </div>
-
-                        {/* Real screenshot */}
-                        <div className="w-full lg:w-[400px] bg-brand-bg-secondary border-t lg:border-t-0 lg:border-l border-brand-border shrink-0 select-none overflow-hidden">
-                          <img
-                            src={item.imagePath}
-                            alt={item.title}
-                            className="w-full h-full object-cover hover:scale-105 transition-transform duration-300 cursor-pointer"
-                            onClick={() => {
-                              if (item.id === 'setting_provider') jumpToSimulatorTab('provider');
-                              else if (item.id === 'setting_computeruse') jumpToSimulatorTab('computer');
-                              else if (item.id === 'setting_skills') jumpToSimulatorTab('skills');
-                            }}
-                          />
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </section>
-
-            {/* SECTION 5: TECHNICAL ARCHITECTURE */}
-            <section className="max-w-7xl mx-auto px-4 md:px-8 space-y-10" id="editorial-architecture">
-              <div className="text-center max-w-xl mx-auto">
-                <span className="text-xs font-mono font-semibold text-brand-caramel tracking-wider uppercase">{t('arch.badge')}</span>
-                <h2 className="text-3xl serif-display font-medium text-brand-text-title tracking-tight mt-1">{t('arch.title')}</h2>
-                <p className="text-xs font-mono text-brand-text-muted mt-1">{t('arch.subtitle')}</p>
-              </div>
-
-              {/* Graphical technical tree diagram representation in high-contrast editorial look */}
-              <div className="max-w-4xl mx-auto bg-brand-bg-card p-6 md:p-8 border border-brand-border rounded-2xl space-y-6">
-                
-                {/* Visualizer Schema Flow Graph */}
-                <div className="hidden sm:grid grid-cols-4 gap-2 text-center text-[10px] font-mono font-bold tracking-wider relative select-none">
-                  
-                  {/* Arrows connectors mockup background CSS */}
-                  <div className="p-3 bg-brand-bg-primary rounded-lg border border-brand-border shadow-2xs">
-                    <span className="text-brand-caramel">{t('arch.ch.one')}</span>
-                    <p className="text-[9px] text-brand-text-muted font-normal mt-1 leading-snug">React 18 + xterm.js</p>
-                  </div>
-                  
-                  <div className="p-3 bg-brand-bg-primary rounded-lg border border-brand-border shadow-2xs">
-                    <span className="text-brand-caramel">{t('arch.ch.two')}</span>
-                    <p className="text-[9px] text-brand-text-muted font-normal mt-1 leading-snug">IPC 守护 ‹ 1ms 时延</p>
-                  </div>
-
-                  <div className="p-3 bg-brand-bg-primary rounded-lg border border-brand-border shadow-2xs">
-                    <span className="text-brand-caramel">{t('arch.ch.three')}</span>
-                    <p className="text-[9px] text-brand-text-muted font-normal mt-1 leading-snug">AST 高效分析套件</p>
-                  </div>
-
-                  <div className="p-3 bg-brand-bg-primary rounded-lg border border-brand-border shadow-2xs">
-                    <span className="text-brand-caramel">{t('arch.ch.four')}</span>
-                    <p className="text-[9px] text-brand-text-muted font-normal mt-1 leading-snug">DeepSeek / Claude</p>
-                  </div>
-                </div>
-
-                {/* Structured detailed text checklist */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 font-mono text-xs pt-4 border-t border-brand-border/40">
-                  {ARCHITECTURE_LAYERS.map((layer, index) => (
-                    <div key={index} className="p-4 bg-brand-bg-primary border border-brand-border rounded-xl space-y-1.5 hover:border-brand-caramel/40 transition-colors">
-                      <div className="flex items-center gap-1.5 font-bold text-brand-text-title text-[13px]">
-                        <span>{layer.title}</span>
-                      </div>
-                      <div className="text-[10px] text-brand-caramel font-semibold">{t('arch.tech_stack')}: {layer.tech}</div>
-                      <p className="text-[11px] text-brand-text-muted leading-relaxed font-sans">{layer.detail}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </section>
-
-            {/* SECTION 6: PERFORMANCE OPTIMIZATION (14-POINT BENCHMARK SCORECARDS) */}
-            <section className="bg-[#efe8de]/50 border-y border-brand-border py-16" id="performance-benchmark">
-              <div className="max-w-7xl mx-auto px-4 md:px-8 space-y-10">
-                <div className="text-center max-w-xl mx-auto">
-                  <span className="text-xs font-mono font-semibold text-brand-caramel tracking-wider uppercase">{t('bench.badge')}</span>
-                  <h2 className="text-3xl serif-display font-medium text-brand-text-title tracking-tight mt-1">{t('bench.title')}</h2>
-                  <p className="text-xs font-mono text-brand-text-muted mt-1">{t('bench.subtitle')}</p>
-                </div>
-
-                {/* Category selectors for Benchmarks */}
-                <div className="flex justify-center gap-1.5 p-1 bg-brand-bg-primary border border-brand-border rounded-lg max-w-md mx-auto text-xs font-mono select-none">
-                  {[
-                    { id: 'all', label: t('bench.cat.all') },
-                    { id: 'performance', label: t('bench.cat.perf') },
-                    { id: 'resource', label: t('bench.cat.res') },
-                    { id: 'ux', label: t('bench.cat.ux') }
-                  ].map((cat) => (
-                    <button 
-                      key={cat.id}
-                      onClick={() => setSelectedBenchmarkCat(cat.id as any)}
-                      className={`px-3 py-1 rounded transition-colors font-medium cursor-pointer ${selectedBenchmarkCat === cat.id ? 'bg-brand-caramel text-brand-bg-primary font-bold' : 'text-brand-text-muted hover:text-brand-text-title'}`}
-                    >
-                      {cat.label}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Grid layout containing filterable benchmarks */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto">
-                  {filteredBenchmarks.map((b, bIdx) => (
-                    <div 
-                      key={bIdx}
-                      className="p-4 bg-brand-bg-primary border border-brand-border rounded-xl font-mono text-xs space-y-2 border-l-2 border-l-brand-caramel"
-                    >
-                      <div className="text-[10px] text-brand-text-muted uppercase tracking-wider">
-                        {b.category === 'performance' ? t('bench.cat.perf.badge') : b.category === 'resource' ? t('bench.cat.res.badge') : t('bench.cat.ux.badge')}
-                      </div>
-                      <h5 className="font-bold text-brand-text-title text-[13px] truncate" title={lang === 'zh' ? b.metric : b.metric_en}>
-                        {lang === 'zh' ? b.metric : b.metric_en}
-                      </h5>
-                      <div className="grid grid-cols-2 gap-2 text-[11px] pt-1">
-                        <div>
-                          <span className="text-brand-text-muted block">DreamCoder</span>
-                          <span className="font-extrabold text-brand-success text-sm block mt-0.5">{b.dreamcoder}</span>
-                        </div>
-                        <div>
-                          <span className="text-brand-text-muted block">{t('bench.competitor')}</span>
-                          <span className="font-semibold text-brand-text-muted block mt-1">{b.competitor}</span>
-                        </div>
-                      </div>
-                      <div className="pt-1.5 border-t border-brand-border/40 flex items-center justify-between text-[10px] text-brand-caramel font-bold">
-                        <span>{t('bench.benefit')}</span>
-                        <span>{b.improvement}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </section>
-
-            {/* SECTION 7: CALL TO ACTION END AREA */}
-            <section className="max-w-xl mx-auto px-4 md:px-8 text-center space-y-6" id="landing-footer-cta">
-              <h2 className="text-3xl serif-display font-medium text-brand-text-title tracking-tight font-bold selection:bg-brand-caramel/10">
-                {t('cta.title')}
-              </h2>
-              <p className="text-xs md:text-sm leading-relaxed text-brand-text-muted max-w-[50ch] mx-auto select-text selection:bg-brand-caramel/10">
-                {t('cta.desc')}
-              </p>
-              
-              <div className="flex flex-wrap items-center justify-center gap-3 pt-2 font-mono">
-                <a
-                  href="https://github.com/GoDiao/dreamcoder/releases"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="px-6 py-3 bg-brand-caramel hover:bg-brand-caramel/90 text-brand-bg-primary text-xs font-bold rounded-xl transition duration-200 cursor-pointer shadow-xs hover:shadow-md hover:translate-y-[-1px] flex items-center gap-2"
-                >
-                  <Download size={13} />
-                  {t('cta.btn.dl')}
-                </a>
-                <a 
-                  href="https://github.com/GoDiao/dreamcoder" 
-                  target="_blank" 
-                  rel="noreferrer" 
-                  className="px-6 py-3 bg-white hover:bg-brand-bg-card text-brand-text-title border border-brand-border text-xs font-bold rounded-xl transition duration-200 cursor-pointer shadow-xs hover:shadow-md hover:translate-y-[-1px] flex items-center gap-1.5"
-                >
-                  <Github size={13} />
-                  <span>{t('cta.btn.git')}</span>
-                </a>
-              </div>
-            </section>
+              <p className="mt-5 max-w-md border-l-2 border-brand-caramel pl-3 text-xs leading-6 text-brand-text-muted">{t.releaseNote}</p>
+            </div>
+            <figure className="relative">
+              <div className="absolute -inset-4 rotate-2 rounded-xl bg-brand-bg-secondary" aria-hidden="true" />
+              <img src={`${import.meta.env.BASE_URL}assets/main.png`} alt={t.screenshotLabel} className="relative w-full rounded-lg border border-brand-border shadow-xl" />
+              <figcaption className="relative mt-3 font-mono text-[11px] text-brand-text-muted">{t.screenshotLabel}</figcaption>
+            </figure>
           </div>
-        )}
+        </section>
 
-        {/* ==================== PAGE 2: CORE DOCUMENTATION VIEW ==================== */}
-        {currentPage === 'docs' && (
-          <div className="max-w-7xl mx-auto px-4 md:px-8 py-8 animate-fade-in" id="docs-page-parent">
-            {/* Embedded modular Docs Section components */}
-            <DocsSection />
+        <section id="features" className="mx-auto max-w-7xl px-5 py-20 md:px-8">
+          <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-caramel">{t.featureEyebrow}</p>
+          <h2 className="mt-3 max-w-2xl font-serif text-4xl font-semibold text-brand-text-title md:text-5xl">{t.featureTitle}</h2>
+          <div className="mt-12 grid gap-5 lg:grid-cols-3">
+            {t.features.map((feature) => (
+              <article key={feature.number} className="overflow-hidden rounded-lg border border-brand-border bg-white/70">
+                <div className="border-b border-brand-border p-6">
+                  <span className="font-mono text-xs text-brand-caramel">{feature.number}</span>
+                  <h3 className="mt-3 font-serif text-2xl font-semibold">{feature.title}</h3>
+                  <p className="mt-3 min-h-24 text-sm leading-7 text-brand-text-muted">{feature.description}</p>
+                </div>
+                <div className="bg-brand-bg-secondary p-3">
+                  <img src={`${import.meta.env.BASE_URL}${feature.image.slice(1)}`} alt={feature.alt} loading="lazy" className="aspect-[16/10] w-full rounded border border-brand-border object-cover object-left-top" />
+                </div>
+              </article>
+            ))}
           </div>
-        )}
+        </section>
 
-        {/* ==================== PAGE 3: COMPONENT DESIGN SPECIFICATIONS ==================== */}
-        {currentPage === 'spec' && (
-          <div className="max-w-7xl mx-auto px-4 md:px-8 py-8 animate-fade-in" id="spec-page-parent">
-            {/* Embedded interactive Design token Specs */}
-            <DesignSpec />
+        <section id="access" className="border-y border-brand-border bg-brand-bg-secondary">
+          <div className="mx-auto grid max-w-7xl gap-10 px-5 py-20 md:px-8 lg:grid-cols-[1fr_1.1fr] lg:items-center">
+            <div className="flex size-20 items-center justify-center rounded-full border border-brand-caramel/40 text-brand-caramel"><Smartphone size={36} strokeWidth={1.3} /></div>
+            <div>
+              <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-caramel">{t.accessEyebrow}</p>
+              <h2 className="mt-3 font-serif text-4xl font-semibold text-brand-text-title md:text-5xl">{t.accessTitle}</h2>
+              <p className="mt-5 text-sm leading-8">{t.accessBody}</p>
+              <a href={`${github}/blob/main/docs/ROADMAP_${lang}.md`} target="_blank" rel="noreferrer" className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-brand-caramel hover:underline">{t.accessLink}<ArrowRight size={15} /></a>
+            </div>
           </div>
-        )}
+        </section>
+
+        <section id="platforms" className="mx-auto max-w-7xl px-5 py-20 md:px-8">
+          <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-caramel">{t.platformsEyebrow}</p>
+          <h2 className="mt-3 max-w-2xl font-serif text-4xl font-semibold text-brand-text-title md:text-5xl">{t.platformsTitle}</h2>
+          <div className="mt-10 grid gap-4 md:grid-cols-3">
+            {[
+              { icon: Monitor, name: t.windows, detail: t.windowsBody },
+              { icon: Laptop, name: t.mac, detail: t.macBody },
+              { icon: Terminal, name: t.linux, detail: t.linuxBody },
+            ].map(({ icon: Icon, name, detail }) => (
+              <div key={name} className="rounded-lg border border-brand-border bg-white/70 p-6">
+                <Icon size={23} strokeWidth={1.5} className="text-brand-caramel" />
+                <h3 className="mt-5 font-serif text-2xl font-semibold">{name}</h3>
+                <p className="mt-2 text-sm leading-7 text-brand-text-muted">{detail}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="border-t border-brand-border bg-brand-text-title px-5 py-16 text-brand-bg-primary md:px-8">
+          <div className="mx-auto flex max-w-7xl flex-col gap-7 md:flex-row md:items-center md:justify-between">
+            <div className="max-w-2xl">
+              <LockKeyhole size={23} strokeWidth={1.5} className="text-brand-caramel" />
+              <h2 className="mt-4 font-serif text-3xl font-semibold text-white">{t.privacyTitle}</h2>
+              <p className="mt-3 text-sm leading-7 text-brand-bg-secondary">{t.privacyBody}</p>
+            </div>
+            <a href={`${github}/blob/main/PRIVACY.md`} target="_blank" rel="noreferrer" className="inline-flex shrink-0 items-center gap-2 self-start rounded-md border border-brand-bg-secondary/40 px-5 py-3 text-sm font-semibold text-white hover:bg-white/10">{t.privacyLink}<ArrowRight size={15} /></a>
+          </div>
+        </section>
       </main>
 
-      {/* SECTION 8: GLOBAL FOOTER */}
-      <footer className="bg-brand-bg-secondary border-t border-brand-border py-12 select-none text-[11px] font-mono">
-        <div className="max-w-7xl mx-auto px-4 md:px-8 text-brand-text-muted space-y-8">
-          
-          {/* Main detailed grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            <div className="space-y-3">
-              <h5 className="font-bold text-brand-text-title text-xs">{t('footer.about.title')}</h5>
-              <p className="font-sans leading-relaxed text-[11px] text-[#75716f] max-w-[200px]">
-                {t('footer.about.desc')}
-              </p>
-            </div>
-            
-            <div className="space-y-2">
-              <h5 className="font-bold text-brand-text-title text-xs">{t('footer.sub.title')}</h5>
-              <ul className="space-y-1.5 text-[11.5px]">
-                <li>
-                  <button onClick={() => setCurrentPage('docs')} className="hover:text-brand-caramel cursor-pointer text-left">{t('footer.sub.item1')}</button>
-                </li>
-                <li>
-                  <button onClick={() => setCurrentPage('docs')} className="hover:text-brand-caramel cursor-pointer text-left">{t('footer.sub.item2')}</button>
-                </li>
-                <li>
-                  <button onClick={() => setCurrentPage('docs')} className="hover:text-brand-caramel cursor-pointer text-left">{t('footer.sub.item3')}</button>
-                </li>
-              </ul>
-            </div>
-
-            <div className="space-y-2">
-              <h5 className="font-bold text-brand-text-title text-xs">{t('footer.dev.title')}</h5>
-              <ul className="space-y-1.5 text-[11.5px]">
-                <li>
-                  <a href="https://github.com/GoDiao/dreamcoder" target="_blank" rel="noreferrer" className="hover:text-brand-caramel">{t('footer.dev.item1')}</a>
-                </li>
-                <li>
-                  <a href="https://github.com/GoDiao/dreamcoder/issues" target="_blank" rel="noreferrer" className="hover:text-brand-caramel">{t('footer.dev.item2')}</a>
-                </li>
-                <li>
-                  <button onClick={() => setCurrentPage('spec')} className="hover:text-brand-caramel cursor-pointer text-left">{t('footer.dev.item3')}</button>
-                </li>
-              </ul>
-            </div>
-
-            <div className="space-y-2">
-              <h5 className="font-bold text-brand-text-title text-xs">{t('footer.sec.title')}</h5>
-              <p className="font-sans leading-relaxed text-[11px] text-[#75716f]">
-                {t('footer.sec.desc')}
-              </p>
-            </div>
-          </div>
-
-          {/* Licensing and metadata row */}
-          <div className="pt-6 border-t border-brand-border/60 flex flex-col sm:flex-row items-center justify-between gap-4 text-center">
-            <div>
-              <span>© 2026 DreamCoder Open Source Group. Open Source licensed under the MIT License.</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <a href="https://github.com/GoDiao/dreamcoder" target="_blank" rel="noreferrer" className="hover:text-brand-caramel inline-flex items-center gap-1">
-                <Github size={11} />
-                <span>GitHub</span>
-              </a>
-              <span className="text-brand-border">|</span>
-              <a href="https://godiao.github.io/dreamcoder/" target="_blank" rel="noreferrer" className="hover:text-brand-caramel inline-flex items-center gap-0.5">
-                <span>{t('footer.preview')}</span>
-                <ExternalLink size={10} />
-              </a>
-            </div>
-          </div>
+      <footer className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-5 py-8 text-xs text-brand-text-muted md:px-8">
+        <span>{t.footer}</span>
+        <div className="flex gap-5">
+          <a href={`${github}/blob/main/docs/CONTRIBUTING_${lang}.md`} target="_blank" rel="noreferrer" className="hover:text-brand-caramel">{t.contribute}</a>
+          <a href={github} target="_blank" rel="noreferrer" className="hover:text-brand-caramel">GitHub</a>
         </div>
       </footer>
     </div>
