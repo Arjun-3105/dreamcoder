@@ -4,8 +4,8 @@ English | [简体中文](./ROADMAP_zh.md)
 
 ## Phase 1 — Desktop GUI + Multi-Provider ✅
 
-- [x] Tauri 2 desktop app (Windows/macOS)
-- [x] Multi-provider support (Anthropic, OpenAI, DeepSeek, MiniMax, Azure, Google Vertex, AWS Bedrock)
+- [x] Tauri 2 desktop app (primarily validated on Windows x64; macOS/Linux still need device feedback)
+- [x] Multi-provider configuration (Anthropic/OpenAI-compatible endpoints; presets for DeepSeek, Qwen, Kimi, Zhipu GLM, LM Studio, and Ollama)
 - [x] Visual settings UI (Providers, API Keys, model mapping)
 - [x] Session management (tabs, sidebar, history search)
 - [x] Built-in PTY terminal (PowerShell/Bash/Zsh)
@@ -36,7 +36,7 @@ English | [简体中文](./ROADMAP_zh.md)
 
 ## Phase 3 — H5 Remote Access ✅
 
-Expose desktop capabilities to mobile browsers via LAN or reverse proxy.
+Once H5 Access is enabled, phone browsers on the same LAN can reach desktop sessions. Cross-network access requires a reverse proxy configured by the user.
 
 - [x] H5 access toggle & token management
 - [x] Mobile chat UI adaptation
@@ -50,6 +50,8 @@ See: [Issue #3](https://github.com/GoDiao/dreamcoder/issues/3)
 ## Phase 4 — IM Adapter Integration
 
 Chat with AI remotely via Feishu/DingTalk/Telegram/WeChat.
+
+Adapter code exists, but the desktop settings entry and automatic startup flow are unfinished. Current use requires starting adapter processes manually. See the [adapter notes](../adapters/README.md).
 
 - [ ] Adapter configuration UI (skeleton exists in `AdapterSettings`)
 - [ ] Pairing code security mechanism

@@ -1,20 +1,17 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# DreamCoder website
 
-# Run and deploy your AI Studio app
+This directory contains the bilingual landing page for DreamCoder. It uses React, Vite, and Tailwind CSS. The page shows screenshots from `website/public/assets/` and links to the repository's current README, roadmap, privacy notice, and GitHub Releases.
 
-This contains everything you need to run your app locally.
+## Run locally
 
-View your app in AI Studio: https://ai.studio/apps/d107143a-03cd-4493-889c-1c6989af1684
+Use the package manager and lockfile already present in this directory:
 
-## Run Locally
+```bash
+cd website
+npm ci
+npm run dev
+```
 
-**Prerequisites:**  Node.js
+The site is a static Vite app. `npm run build` writes its output to `website/dist/`.
 
-
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+The GitHub Releases page is linked as release status, not as a direct installer download. Before changing that wording, confirm that the target Release contains working installer assets for the advertised platforms. Keep claims about provider support, H5 access, platform validation, and key storage aligned with the root README and `PRIVACY.md`.

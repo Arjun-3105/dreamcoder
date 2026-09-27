@@ -1,6 +1,6 @@
 {
   "name": "DreamCoder",
-  "description": "Claude Code 的开源桌面版 GUI 工作台 (DreamCoder Web UI & Docs Platform)",
+  "description": "本地运行的多模型 AI 编程工作台",
   "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": []
 }

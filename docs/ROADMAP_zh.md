@@ -4,8 +4,8 @@
 
 ## Phase 1 — 桌面端 GUI + 多模型支持 ✅
 
-- [x] Tauri 2 桌面应用 (Windows/macOS)
-- [x] 多 Provider 支持 (Anthropic, OpenAI, DeepSeek, MiniMax, Azure, Google Vertex, AWS Bedrock)
+- [x] Tauri 2 桌面应用（主要在 Windows x64 验证；macOS/Linux 仍需实机反馈）
+- [x] 多 Provider 配置（Anthropic/OpenAI 兼容接口；DeepSeek、通义千问、Kimi、智谱 GLM、LM Studio、Ollama 等预设）
 - [x] 可视化设置界面 (Provider、API Key、模型映射)
 - [x] 会话管理 (多标签、侧边栏、历史搜索)
 - [x] 内置 PTY 终端 (PowerShell/Bash/Zsh)
@@ -36,7 +36,7 @@
 
 ## Phase 3 — H5 远程访问 ✅
 
-将桌面端能力通过局域网或反向代理暴露到手机浏览器。
+启用 H5 接入后，可在同一局域网内从手机浏览器访问桌面端会话。跨网络访问需要用户自行配置反向代理。
 
 - [x] H5 访问开关与 Token 管理
 - [x] 手机端聊天 UI 适配
@@ -50,6 +50,8 @@
 ## Phase 4 — IM 适配器集成
 
 通过飞书/钉钉/Telegram/微信远程与 AI 对话。
+
+适配器代码已存在，但桌面设置入口和自动启动流程尚未完成；当前使用需要手动启动适配器进程。详见 [适配器说明](../adapters/README.md)。
 
 - [ ] 适配器配置 UI (已在 `AdapterSettings` 有骨架)
 - [ ] 配对码安全机制

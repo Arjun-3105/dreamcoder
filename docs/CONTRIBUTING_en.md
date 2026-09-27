@@ -23,10 +23,10 @@ bun run build:sidecars
 bun run tauri dev
 
 # 6. Pick an issue with the `good first issue` or `help wanted` label,
-#    create a feature branch from `dev`
-git checkout dev && git checkout -b feat/your-feature
+#    create a feature branch from `main`
+git checkout main && git checkout -b feat/your-feature
 
-# 7. Code → bun run lint → bun run test → push → open a PR targeting `dev`
+# 7. Code → bun run lint → bun run test → push → open a PR targeting `main`
 ```
 
 👉 **First time?** Browse [good first issues](https://github.com/GoDiao/dreamcoder/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22). Each one has a mentor — feel free to ping them in the issue or PR.
@@ -60,9 +60,9 @@ git checkout dev && git checkout -b feat/your-feature
 
 ### Submit Code
 
-1. **Fork the repo** and create a feature branch from `dev`:
+1. **Fork the repo** and create a feature branch from `main`:
    ```bash
-   git checkout dev
+   git checkout main
    git checkout -b feat/your-feature-name
    ```
 
@@ -88,7 +88,7 @@ git checkout dev && git checkout -b feat/your-feature
    bun run test    # run tests
    ```
 
-5. **Submit a PR**. Target the `dev` branch. Describe what you changed and why.
+5. **Submit a PR**. Target the `main` branch. Describe what you changed and why.
 
 ## Project Structure
 
