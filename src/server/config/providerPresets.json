@@ -110,6 +110,47 @@
     }
   },
   {
+    "id": "groq",
+    "name": "Groq",
+    "baseUrl": "https://api.groq.com/openai/v1",
+    "apiFormat": "openai_chat",
+    "defaultModels": {
+      "main": "llama-3.3-70b-versatile",
+      "haiku": "llama-3.1-8b-instant",
+      "sonnet": "llama-3.3-70b-versatile",
+      "opus": "llama-3.3-70b-versatile"
+    },
+    "needsApiKey": true,
+    "websiteUrl": "https://groq.com",
+    "apiKeyUrl": "https://console.groq.com/keys",
+    "authStrategy": "api_key",
+    "modelContextWindows": {
+      "llama-3.3-70b-versatile": 128000,
+      "llama-3.1-8b-instant": 128000
+    }
+  },
+  {
+    "id": "openrouter",
+    "name": "OpenRouter",
+    "baseUrl": "https://openrouter.ai/api/v1",
+    "apiFormat": "openai_chat",
+    "defaultModels": {
+      "main": "anthropic/claude-3.5-sonnet",
+      "haiku": "meta-llama/llama-3.1-8b-instruct",
+      "sonnet": "anthropic/claude-3.5-sonnet",
+      "opus": "anthropic/claude-3-opus"
+    },
+    "needsApiKey": true,
+    "websiteUrl": "https://openrouter.ai",
+    "apiKeyUrl": "https://openrouter.ai/keys",
+    "authStrategy": "api_key",
+    "modelContextWindows": {
+      "anthropic/claude-3.5-sonnet": 200000,
+      "meta-llama/llama-3.1-8b-instruct": 128000,
+      "anthropic/claude-3-opus": 200000
+    }
+  },
+  {
     "id": "lmstudio",
     "name": "LM Studio",
     "baseUrl": "http://localhost:1234",
